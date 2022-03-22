@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My survey</title>
+
+    <!-- Specify location of jsPsych plugins -->
+    <script src ="jspsych-6.3.0/jspsych.js"></script>
+    <script src ="jspsych-6.3.0/plugins/jspsych-survey-multi-choice.js"></script>
+    <!-- We load up some more plugins-->
+    <script src ="jspsych-6.3.0/plugins/jspsych-survey-multi-select.js"></script>
+    <script src ="jspsych-6.3.0/plugins/jspsych-survey-likert.js"></script>
+    <script src ="jspsych-6.3.0/plugins/jspsych-survey-text.js"></script>
+
+    <!-- Adopt the stylesheet provided by jsPsych -->
+    <link rel="stylesheet" href="style.css">
+
+  </head>
+  <body>
+
+    <!-- In order to save the form to a server, you need a handling file with server code (e.g. index.php here) -->
+    
+    <script> 
+
+      let timeline = []; // jsPsych timeline Array
+
+      /* 
+        Finally, we are going to look at some different types of survey plugins provided by jsPsych.
+      */
+
+      const iceCreamQuestions = [
+        `What flavors of ice cream do you like?`,
+        `What is your favorite combination of ice cream flavors?`,
+        `Which flavor(s) would you give to your worst enemy?`,
+      ];
+      const flavorOptions = ['Vanilla','Chocolate','Strawberry','Pistachio','Mango','Kebab'];
+
+      // let's try to make one where you can select multiple options
+      const multiSelectTrial = {
+        type: "survey-multi-select",
+        questions: makeTrialWithMultipleQuestions(iceCreamQuestions, flavorOptions),
+        data: {label: 'question3'},
+      };
+      timeline.push(multiSelectTrial);
+
+      /* 
+        Often, questionnaire responses are located on a Likert scale. 
+        Let's look at the survey-likert plugin.
+      */
+
+      const likertQuestions = [
+        `How sleepy are you right now?`,
+        `How much do you like croissants?`,
+        `By how much is Coke better than Pepsi?`
+      ];
+      const likertOptions = ['Not much','A little','Meh','Yes','Very much']; // these will be linked to a numerical value in your data
+
+      const likertTrial = {
+        type: "survey-likert",
+        questions: makeTrialWithMultipleQuestions(likertQuestions,likertOptions,true),
+        scale_width: 300,
+      };
+      timeline.push(likertTrial);
+
+      /* 
+        Try to figure out how to make a survey-text trial for yourself!
+
+
+      */
+      
+
+      // Also, if you've not noticed by now, you can use functions that are defined lower than where they're called
+      function makeTrialWithMultipleQuestions(questionInput,optionInput,isLikert) { // I didn't want to rewrite another function so I modified this one to take likert trials
+            return Array.from(questionInput, (question) => {
+              const trialObject = {          
+                prompt: question,
+                required: true,
+                // and so on... 
+              };
+
+              if (isLikert) { // and changed it as such, since different plugins take different named fields for the same thing
+                trialObject.labels = optionInput;
+              } else {
+                trialObject.options = optionInput;
+              }
+              return trialObject
+            })
+      }
+
+
+      jsPsych.init({
+        timeline: timeline,
+        minimum_valid_rt: 100,
+        on_trial_finish: (data) => {
+          // do something after a participant completes a trial
+          console.log(data)
+          // usually you want to send data to a server here
+        },
+        on_finish: () => {
+          // do something after a participant finishes the study
+          console.log('Study finished.')
+          // usually you want to send data to a server here
+        }
+      });
+
+    </script>
+
+
+	
+  </body>
+</html> 

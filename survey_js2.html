@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My survey</title>
+
+    <!-- Specify location of jsPsych plugins -->
+    <script src ="jspsych-6.3.0/jspsych.js"></script>
+    <script src ="jspsych-6.3.0/plugins/jspsych-survey-multi-choice.js"></script>
+
+    <!-- Adopt the stylesheet provided by jsPsych -->
+    <link rel="stylesheet" href="style.css">
+
+  </head>
+  <body>
+
+    <!-- In order to save the form to a server, you need a handling file with server code (e.g. index.php here) -->
+    
+    <script> 
+
+      let timeline = []; // all jsPsych "stimuli" need to be loaded onto a timeline array
+
+      /* 
+        Making a ton of these objects is annoying and repetitive, let's automate the process a little bit.
+        For our simplified example, we know that the options and the rest of the other fields don't change, 
+          so let's try to organize our code with some functions and loops.
+      */
+
+      // We'll first make an array of questions that we want to ask in the survey.
+      const letterQuestions = [
+        `What is the first letter of the alphabet?`,
+        `What is the second letter of the alphabet?`,
+        `What is the third letter of the alphabet?`,
+      ];
+
+      // Now let's define an array of options just like inside a question Object
+      const letterOptions = ['A','B','C','D'];
+
+      // Then we'll make a function that combines these together and makes a single questions Array
+      function makeTrialWithMultipleQuestions(questionInput,optionInput) {
+        /* There are (at least) three ways to make these questions, and some are safer than others
+            depending on the nature of your entire experiment/study. 
+        */
+        const methodNumber = 3; // choose your method here... they will all do the same thing in our case
+
+        switch (methodNumber) {
+          case 1:
+          // 1. logically easiest way, but async unsafe
+            let questions_array = []; // we make an empty array 
+            for (let i = 0; i < questionInput.length; i++) {
+              questions_array.push({
+                prompt: questionInput[i],
+                options: optionInput,
+                required: true,
+                // and so on... 
+              });
+            }
+            return questions_array
+            
+          // XOR
+          case 2:
+          // 2. a little bit easier, but async unsafe
+            let questions_array2 = []; 
+            questionInput.forEach(question => questions_array2.push({
+              prompt: question,
+              options: optionInput,
+              required: true,
+              // and so on... 
+            }));
+            return questions_array2
+
+          // XOR 
+          case 3:
+          // 3. syntactically most difficult, but resists async problems
+            return Array.from(questionInput, (question) => {
+              return {          
+                prompt: question,
+                options: optionInput,
+                required: true,
+                // and so on... 
+              }
+            })
+          default:
+            console.alert('Choose a valid methodNumber!');
+        }
+
+        // Note: You will never write all 3 of these methods for this type of function, but choose one depending on your requirements
+      }
+
+      const multiChoiceLettersTrial = {
+        type: "survey-multi-choice", // This field determines the plug-in type. Here we are using "survey-multi-choice"
+        /* 
+          If you open the .js file for the plugin, you will see which fields are mandatory and which are not by 
+            seeing which parameters have a default value. 
+        */
+        questions: makeTrialWithMultipleQuestions(letterQuestions,letterOptions),
+        preamble: 'Answer these questions.',
+        data: {label: 'question1'},
+      };
+
+      // Once you've created a trial object, you now need to load, or "push" it to the timeline.
+      timeline.push(multiChoiceLettersTrial);
+
+      /* Now, you can mix and match different types of questions and options with that one function */
+      const dayQuestions = [
+        `What day is it today?`,
+        `What is your favorite day of the week?`,
+        `What day do you hate the most?`,
+      ];
+      const dayOptions = ['M','T','W','Th','F','Sa','Su'];
+      const multiChoiceDaysTrial = {
+        type: "survey-multi-choice", 
+        questions: makeTrialWithMultipleQuestions(dayQuestions,dayOptions),
+        preamble: 'Answer these questions.',
+        data: {label: 'question2'},
+      };
+      timeline.push(multiChoiceDaysTrial);
+
+
+      jsPsych.init({
+        timeline: timeline,
+        minimum_valid_rt: 100,
+        on_trial_finish: (data) => {
+          // do something after a participant completes a trial
+          console.log(data)
+          
+        },
+        on_finish: () => {
+          // do something after a participant finishes the study
+          console.log('Study finished.')
+        }
+      });
+
+    </script>
+
+
+	
+  </body>
+</html> 

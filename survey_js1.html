@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My survey</title>
+
+    <!-- Specify location of jsPsych plugins -->
+    <script src ="jspsych-6.3.0/jspsych.js"></script>
+    <script src ="jspsych-6.3.0/plugins/jspsych-survey-multi-choice.js"></script>
+
+    <!-- Adopt the stylesheet provided by jsPsych -->
+    <link rel="stylesheet" href="style.css">
+
+  </head>
+  <body>
+
+    <!-- In order to save the form to a server, you need a handling file with server code (e.g. index.php here) -->
+    
+    <script> // open a script tag to write Javascript code
+
+      let timeline = []; // all jsPsych "stimuli" need to be loaded onto a timeline array
+
+      // This is an example of a Javascript Object
+      const jsObject = {
+        field0: 'value',
+        field1: true,
+        field2: 45,
+        field3: [1,'test',true,undefined],
+        field4: {
+          field0: 'whatever'
+        },
+      }
+
+      /* 
+        All stimuli in jsPsych are loaded in the form of an JS object.
+        The fields the object must have depend on the jsPsych plugin you want to use.
+      */
+      const multiChoiceTrial = {
+        type: "survey-multi-choice", // This field determines the plug-in type. Here we are using "survey-multi-choice"
+        /* 
+          If you open the .js file for the plugin, you will see which fields are mandatory and which are not by 
+            seeing which parameters have a default value. 
+        */
+        questions: [ // The field 'questions' must be an Array of Objects
+          { 
+            /* 
+              As you see, each object has several fields that can be defined... 
+              The first two, 'prompt' and 'options' are required.
+            */
+            prompt: 'What is the first letter of the alphabet?', 
+            options: ['A','B','C','D'], 
+            required: true,   // false by default
+            horizontal: true, // false by default
+            name: 'whatever', // '' by default, this is for analysis and not for participant
+          },
+          { 
+            prompt: 'What is the second letter of the alphabet?', 
+            options: ['A','B','C','D'], 
+            required: true,   // false by default
+            horizontal: true, // false by default
+            name: 'whatever', // '' by default, this is for analysis and not for participant
+          },
+          { 
+            prompt: 'What is the third letter of the alphabet?', 
+            options: ['A','B','C','D'], 
+            required: true,   // false by default
+            horizontal: true, // false by default
+            name: 'whatever', // '' by default, this is for analysis and not for participant
+          },
+        ],
+        preamble: 'Answer these questions.',
+        data: {label: 'question1'},
+      };
+
+      // You can see what this Object looks like in your browser console
+      console.log(multiChoiceTrial);
+
+      // Once you've created a trial object, you now need to load, or "push" it to the timeline.
+      timeline.push(multiChoiceTrial);
+      
+      // Each push is a single visual stimulus. You can push multiple stimuli via loops, or multiple inputs in the push
+      timeline.push(multiChoiceTrial,multiChoiceTrial);
+      /*              ^^^^
+          These two are doing the same thing.
+                      vvvv                    */
+      for (let i = 0; i < 2; i++) {
+        timeline.push(multiChoiceTrial);
+      }
+
+      // You must initialize jsPsych at the end for any of this to work
+      jsPsych.init({
+        timeline: timeline,
+        minimum_valid_rt: 100,
+        on_trial_finish: (data) => {
+          // do something after a participant completes a trial
+          console.log(data)
+          
+        },
+        on_finish: () => {
+          // do something after a participant finishes the study
+          console.log('Study finished.')
+        }
+      });
+
+    </script>
+
+
+	
+  </body>
+</html> 
